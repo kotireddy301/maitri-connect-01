@@ -60,6 +60,22 @@ app.get('/api/debug-db', async (req, res) => {
     }
 });
 
+// Force Init DB Route
+app.get('/api/force-init-db', async (req, res) => {
+    try {
+        const fs = require('fs');
+        const schemaPath = path.join(__dirname, 'db', 'schema.sql');
+        const schemaSql = fs.readFileSync(schemaPath, 'utf8');
+
+        await query(schemaSql);
+
+        res.json({ message: "Schema applied successfully! Tables created." });
+    } catch (err) {
+        console.error("Force Init Error:", err);
+        res.status(500).json({ message: err.message, stack: err.stack });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
