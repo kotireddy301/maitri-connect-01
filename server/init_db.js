@@ -6,44 +6,47 @@ require('dotenv').config();
 async function init() {
     console.log("🚀 Starting Automatic Database Initialization...");
 
-    const commonConfig = {
-        user: process.env.DB_USER || 'postgres',
-        password: process.env.DB_PASSWORD, // 'admin123'
-        host: process.env.DB_HOST || 'localhost',
-        port: process.env.DB_PORT || 5432,
-    };
+    const isProduction = !!process.env.DATABASE_URL;
 
-    // Step 1: Connect to default 'postgres' DB to create our target DB
-    const client1 = new Client({
-        ...commonConfig,
-        database: 'postgres',
-    });
-
-    try {
-        await client1.connect();
-
-        // Check if database exists
-        const res = await client1.query("SELECT 1 FROM pg_database WHERE datname = 'event_platform'");
-        if (res.rows.length === 0) {
-            console.log("📦 Database 'event_platform' not found. Creating it...");
-            await client1.query('CREATE DATABASE event_platform');
-            console.log("✅ Database created!");
-        } else {
-            console.log("ℹ️ Database 'event_platform' already exists.");
+    // Configuration for connection
+    const connectionConfig = isProduction
+        ? {
+            connectionString: process.env.DATABASE_URL,
+            ssl: { rejectUnauthorized: false },
         }
-        await client1.end();
+        : {
+            user: process.env.DB_USER || 'postgres',
+            password: process.env.DB_PASSWORD,
+            host: process.env.DB_HOST || 'localhost',
+            port: process.env.DB_PORT || 5432,
+            database: 'event_platform', // Default for local logic below
+        };
 
-    } catch (err) {
-        console.error("❌ Error in Step 1 (DB Creation):", err.message);
-        return;
+    // Step 1: Create Database (Local Only)
+    if (!isProduction) {
+        try {
+            const client1 = new Client({
+                ...connectionConfig,
+                database: 'postgres', // Connect to default postgres to create new DB
+            });
+            await client1.connect();
+            const res = await client1.query("SELECT 1 FROM pg_database WHERE datname = 'event_platform'");
+            if (res.rows.length === 0) {
+                console.log("📦 Database 'event_platform' not found. Creating it...");
+                await client1.query('CREATE DATABASE event_platform');
+                console.log("✅ Database created!");
+            } else {
+                console.log("ℹ️ Database 'event_platform' already exists.");
+            }
+            await client1.end();
+        } catch (err) {
+            console.error("⚠️ Local DB check failed (ignoring for production):", err.message);
+        }
     }
 
-    // Step 2: Connect to the new 'event_platform' and apply Schema
+    // Step 2: Connect to Target DB and Apply Schema
     console.log("📜 Applying Schema...");
-    const client2 = new Client({
-        ...commonConfig,
-        database: 'event_platform',
-    });
+    const client2 = new Client(connectionConfig);
 
     try {
         await client2.connect();
