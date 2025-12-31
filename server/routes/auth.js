@@ -82,7 +82,7 @@ router.post('/login', async (req, res) => {
 
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Server Error');
+        res.status(500).json({ message: 'Server Error: ' + err.message });
     }
 });
 
@@ -98,7 +98,7 @@ router.get('/profile', authorization, async (req, res) => {
         res.json(user.rows[0]);
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Server Error');
+        res.status(500).json({ message: 'Server Error: ' + err.message });
     }
 });
 
@@ -270,7 +270,7 @@ router.post('/forgot-password', async (req, res) => {
 
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Server Error');
+        res.status(500).json({ message: 'Server Error: ' + err.message });
     }
 });
 
@@ -300,7 +300,7 @@ router.post('/reset-password', async (req, res) => {
 
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Server Error');
+        res.status(500).json({ message: 'Server Error: ' + err.message });
     }
 });
 
