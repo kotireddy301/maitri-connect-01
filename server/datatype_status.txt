@@ -1,0 +1,6 @@
+[
+  {
+    "column_name": "organizer_id",
+    "data_type": "integer"
+  }
+]
