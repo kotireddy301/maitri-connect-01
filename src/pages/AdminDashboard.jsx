@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
-import api from '../lib/api';
+import api, { FILE_BASE_URL } from '../lib/api';
 import { User, Briefcase, Calendar, Layers, Clock, CheckCircle } from 'lucide-react';
 import AdminSidebar from '../components/admin/AdminSidebar';
 import AdminHeader from '../components/admin/AdminHeader';
@@ -95,7 +95,7 @@ const AdminDashboard = () => {
                                             <div className="flex items-center">
                                                 <div className="flex-shrink-0 h-10 w-10 bg-gray-100 rounded-lg flex items-center justify-center">
                                                     {event.image_url ? (
-                                                        <img src={`http://localhost:5000${event.image_url}`} className="h-10 w-10 rounded-lg object-cover" alt="" />
+                                                        <img src={`${FILE_BASE_URL}${event.image_url}`} className="h-10 w-10 rounded-lg object-cover" alt="" />
                                                     ) : (
                                                         <Calendar className="w-5 h-5 text-gray-400" />
                                                     )}

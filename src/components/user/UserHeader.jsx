@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, Search, Bell, User } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { FILE_BASE_URL } from '../../lib/api';
 import api from '../../lib/api';
 
 const UserHeader = ({ onMenuClick }) => {
@@ -14,7 +15,7 @@ const UserHeader = ({ onMenuClick }) => {
                     // Normalize profile pic url
                     let profile_pic = res.data.profile_pic;
                     if (profile_pic && !profile_pic.startsWith('http')) {
-                        profile_pic = `http://localhost:5000${profile_pic}`;
+                        profile_pic = `${FILE_BASE_URL}${profile_pic}`;
                     }
                     setUser({ ...res.data, profile_pic });
                 }

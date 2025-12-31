@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search, Globe, Moon, Bell, Maximize, LogOut, User, Settings as SettingsIcon, Menu } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import api, { FILE_BASE_URL } from '../../lib/api';
 
 const AdminHeader = ({ onMenuClick }) => {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -17,24 +18,20 @@ const AdminHeader = ({ onMenuClick }) => {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const token = localStorage.getItem('token');
-                const res = await fetch('http://localhost:5000/api/auth/profile', {
-                    headers: { 'Authorization': token }
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    let pic = data.profile_pic;
-                    if (pic && !pic.startsWith('http')) {
-                        pic = `http://localhost:5000${pic}`;
-                    }
-                    setAdminUser({
-                        first_name: data.first_name,
-                        last_name: data.last_name,
-                        email: data.email,
-                        role: data.role,
-                        profile_pic: pic || "https://api.dicebear.com/7.x/avataaars/svg?seed=Admin"
-                    });
+                const res = await api.get('/auth/profile');
+                const data = res.data;
+
+                let pic = data.profile_pic;
+                if (pic && !pic.startsWith('http')) {
+                    pic = `${FILE_BASE_URL}${pic}`;
                 }
+                setAdminUser({
+                    first_name: data.first_name,
+                    last_name: data.last_name,
+                    email: data.email,
+                    role: data.role,
+                    profile_pic: pic || "https://api.dicebear.com/7.x/avataaars/svg?seed=Admin"
+                });
             } catch (err) {
                 console.error("Failed to fetch admin profile", err);
             }

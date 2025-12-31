@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import api from '../lib/api';
+import api, { FILE_BASE_URL } from '../lib/api';
 import PageHeader from '../components/PageHeader';
 import { MapPin, Calendar, Clock, Share2, Heart, Flag, Phone, Globe, Star, CheckCircle, Navigation as NavIcon, User } from 'lucide-react';
 import { Button } from '../ui/button';
@@ -62,7 +62,7 @@ const EventDetails = () => {
                             <div className="flex items-start gap-4">
                                 <div className="h-20 w-20 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
                                     <img
-                                        src={event.organizer_pic ? `http://localhost:5000${event.organizer_pic}` : `https://api.dicebear.com/7.x/avataaars/svg?seed=${event.first_name}`} // Fallback to organizer avatar if no event logo, or just random
+                                        src={event.organizer_pic ? `${FILE_BASE_URL}${event.organizer_pic}` : `https://api.dicebear.com/7.x/avataaars/svg?seed=${event.first_name}`} // Fallback to organizer avatar if no event logo, or just random
                                         alt="Organizer"
                                         className="w-full h-full object-cover"
                                     />
@@ -107,7 +107,7 @@ const EventDetails = () => {
                             {/* Gallery / Main Image */}
                             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-[400px]">
                                 <img
-                                    src={event.image_url ? `http://localhost:5000${event.image_url}` : "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&w=1200&q=80"}
+                                    src={event.image_url ? `${FILE_BASE_URL}${event.image_url}` : "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&w=1200&q=80"}
                                     alt={event.title}
                                     className="w-full h-full object-cover"
                                 />
@@ -171,7 +171,7 @@ const EventDetails = () => {
                                 </div>
                                 <div className="flex items-center gap-4 mb-6">
                                     <img
-                                        src={event.profile_pic ? `http://localhost:5000${event.profile_pic}` : "https://api.dicebear.com/7.x/avataaars/svg?seed=Organizer"}
+                                        src={event.profile_pic ? `${FILE_BASE_URL}${event.profile_pic}` : "https://api.dicebear.com/7.x/avataaars/svg?seed=Organizer"}
                                         className="w-14 h-14 rounded-full bg-gray-100 object-cover"
                                         alt="Organizer"
                                     />

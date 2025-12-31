@@ -3,7 +3,7 @@ import { Helmet } from "react-helmet";
 import { motion } from "framer-motion";
 import { ExternalLink, Calendar, MapPin, Search, Heart, Eye, Star } from "lucide-react";
 import { Link } from 'react-router-dom';
-import api from '../lib/api';
+import api, { FILE_BASE_URL } from '../lib/api';
 
 import PageHeader from "../components/PageHeader";
 
@@ -66,7 +66,7 @@ const Events = () => {
                     {/* Image Section */}
                     <div className="relative h-64 overflow-hidden">
                       <img
-                        src={event.image_url ? `http://localhost:5000${event.image_url}` : "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&w=800&q=80"}
+                        src={event.image_url ? `${FILE_BASE_URL}${event.image_url}` : "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&w=800&q=80"}
                         alt={event.title}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />

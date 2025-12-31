@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useToast } from '../ui/use-toast';
 import { Helmet } from 'react-helmet';
 import AdminLayout from '../components/admin/AdminLayout'; // ✅ Updated import
+import api, { FILE_BASE_URL } from '../lib/api';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -29,25 +30,19 @@ const AdminProfile = () => {
 
     const fetchProfile = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:5000/api/auth/profile', {
-                headers: { 'Authorization': token }
-            });
-            const data = await res.json();
-            if (res.ok) {
-                // Ensure languages is an array
-                if (data.languages && !Array.isArray(data.languages)) {
-                    // if it comes as string {English,French} from postgres text[] sometimes depending on driver config
-                    // but pg driver usually returns array. If it's null, default to []
-                    data.languages = [];
-                }
+            const res = await api.get('/auth/profile');
+            const data = res.data;
 
-                setUser({ ...data, languages: data.languages || [] });
+            // Ensure languages is an array
+            if (data.languages && !Array.isArray(data.languages)) {
+                data.languages = [];
+            }
 
-                if (data.profile_pic) {
-                    const imgUrl = data.profile_pic.startsWith('http') ? data.profile_pic : `http://localhost:5000${data.profile_pic}`;
-                    setImage(imgUrl);
-                }
+            setUser({ ...data, languages: data.languages || [] });
+
+            if (data.profile_pic) {
+                const imgUrl = data.profile_pic.startsWith('http') ? data.profile_pic : `${FILE_BASE_URL}${data.profile_pic}`;
+                setImage(imgUrl);
             }
         } catch (err) {
             console.error(err);
@@ -56,11 +51,10 @@ const AdminProfile = () => {
 
     const handleProfileUpdate = async () => {
         try {
-            const token = localStorage.getItem('token');
             const formData = new FormData();
             Object.keys(user).forEach(key => {
                 if (key === 'languages') {
-                    formData.append(key, user[key].join(',')); // Send as comma joined string for simplicity or JSON
+                    formData.append(key, user[key].join(','));
                 } else {
                     formData.append(key, user[key] || '');
                 }
@@ -70,18 +64,12 @@ const AdminProfile = () => {
                 formData.append('profile_pic', selectedFile);
             }
 
-            const res = await fetch('http://localhost:5000/api/auth/profile', {
-                method: 'PUT',
-                headers: { 'Authorization': token },
-                body: formData
+            const res = await api.put('/auth/profile', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
             });
 
-            if (res.ok) {
-                toast({ title: "Profile updated successfully" });
-                fetchProfile(); // Refresh
-            } else {
-                toast({ title: "Update failed", variant: "destructive" });
-            }
+            toast({ title: "Profile updated successfully" });
+            fetchProfile(); // Refresh
         } catch (err) {
             console.error(err);
             toast({ title: "Update failed", variant: "destructive" });
@@ -94,24 +82,16 @@ const AdminProfile = () => {
             return toast({ title: "Passwords do not match", variant: "destructive" });
         }
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:5000/api/auth/password', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'Authorization': token },
-                body: JSON.stringify({
-                    current_password: passwords.current_password,
-                    new_password: passwords.new_password
-                })
+            await api.put('/auth/password', {
+                current_password: passwords.current_password,
+                new_password: passwords.new_password
             });
-            const data = await res.json();
-            if (res.ok) {
-                toast({ title: "Password updated successfully" });
-                setPasswords({ current_password: '', new_password: '', confirm_password: '' });
-            } else {
-                toast({ title: data.message || "Failed", variant: "destructive" });
-            }
+
+            toast({ title: "Password updated successfully" });
+            setPasswords({ current_password: '', new_password: '', confirm_password: '' });
         } catch (err) {
             console.error(err);
+            toast({ title: "Failed to update password", variant: "destructive" });
         }
     };
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Helmet } from "react-helmet";
 import { Search, Filter, MoreVertical, CheckCircle, XCircle, Clock, Trash2, Eye, Edit2 } from 'lucide-react';
 import AdminLayout from '../components/admin/AdminLayout';
-import api from '../lib/api';
+import api, { FILE_BASE_URL } from '../lib/api';
 import { Link } from 'react-router-dom'; // Import Link
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal'; // Import Modal
 
@@ -97,8 +97,8 @@ const AdminListings = () => {
                                 key={tab}
                                 onClick={() => setActiveTab(tab)}
                                 className={`text-sm font-medium pb-4 -mb-4 border-b-2 transition-colors ${activeTab === tab
-                                        ? 'border-[#D3043C] text-[#D3043C]'
-                                        : 'border-transparent text-gray-500 hover:text-gray-700'
+                                    ? 'border-[#D3043C] text-[#D3043C]'
+                                    : 'border-transparent text-gray-500 hover:text-gray-700'
                                     }`}
                             >
                                 {tab} Listings
@@ -127,7 +127,7 @@ const AdminListings = () => {
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
                                             <img
-                                                src={event.image_url ? `http://localhost:5000${event.image_url}` : "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=100&q=80"}
+                                                src={event.image_url ? `${FILE_BASE_URL}${event.image_url}` : "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=100&q=80"}
                                                 alt={event.title}
                                                 className="w-10 h-10 rounded-lg object-cover bg-gray-100"
                                             />
@@ -139,8 +139,8 @@ const AdminListings = () => {
                                     <td className="px-6 py-4 text-sm text-gray-600">{new Date(event.date).toLocaleDateString()}</td>
                                     <td className="px-6 py-4">
                                         <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${event.status === 'approved' ? 'bg-green-50 text-green-600' :
-                                                event.status === 'rejected' ? 'bg-red-50 text-red-600' :
-                                                    'bg-yellow-50 text-yellow-600'
+                                            event.status === 'rejected' ? 'bg-red-50 text-red-600' :
+                                                'bg-yellow-50 text-yellow-600'
                                             }`}>
                                             {event.status === 'approved' ? 'Active' : event.status === 'rejected' ? 'Inactive' : 'Pending'}
                                         </span>

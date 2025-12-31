@@ -6,6 +6,8 @@ const api = axios.create({
         : '/api',
 });
 
+export const FILE_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 // Add a request interceptor to include the JWT token
 api.interceptors.request.use(
     (config) => {

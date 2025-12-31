@@ -4,7 +4,7 @@ import UserLayout from '../../components/user/UserLayout';
 import { Search, Eye, Edit2, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import DeleteConfirmationModal from '../../components/DeleteConfirmationModal'; // Import Modal
-import api from '../../lib/api'; // Import api instance
+import api, { FILE_BASE_URL } from '../../lib/api'; // Import api instance
 
 const UserListings = () => {
     const [listings, setListings] = React.useState([]);
@@ -129,7 +129,7 @@ const UserListings = () => {
                                             <div className="flex gap-4">
                                                 <div className="relative w-32 h-24 flex-shrink-0 overflow-hidden rounded-xl shadow-sm group-hover:shadow-md transition-all">
                                                     <img
-                                                        src={item.image_url ? `http://localhost:5000${item.image_url}` : "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=400&q=80"}
+                                                        src={item.image_url ? `${FILE_BASE_URL}${item.image_url}` : "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=400&q=80"}
                                                         alt={item.title}
                                                         className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
                                                     />

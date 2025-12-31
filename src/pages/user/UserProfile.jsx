@@ -4,7 +4,7 @@ import UserLayout from '../../components/user/UserLayout';
 import { Camera, Trash2, Lock, Save } from 'lucide-react';
 import { Button } from '../../ui/button';
 import { useToast } from '../../ui/use-toast';
-import api from '../../lib/api';
+import api, { FILE_BASE_URL } from '../../lib/api';
 
 const UserProfile = () => {
     const { toast } = useToast();
@@ -34,7 +34,7 @@ const UserProfile = () => {
                 if (data.profile_pic) {
                     const imgUrl = data.profile_pic.startsWith('http')
                         ? data.profile_pic
-                        : `http://localhost:5000${data.profile_pic}`;
+                        : `${FILE_BASE_URL}${data.profile_pic}`;
                     setImage(imgUrl);
                 }
             } catch (err) {
