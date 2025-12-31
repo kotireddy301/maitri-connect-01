@@ -126,6 +126,7 @@ async function init() {
 
     } catch (err) {
         console.error("❌ Error in Step 2 (Schema/Seed):", err.message);
+        process.exit(1);
     }
 }
 
