@@ -27,9 +27,10 @@ const Register = () => {
             toast({ title: "Account created!", description: "Welcome to MaitriConnect" });
             navigate('/dashboard');
         } catch (err) {
+            const errorMessage = err.response?.data?.message || err.message || "Unknown error";
             toast({
                 title: "Registration failed",
-                description: err.response?.data?.message || "Something went wrong",
+                description: `${errorMessage} (Status: ${err.response?.status || 'N/A'})`,
                 variant: "destructive"
             });
         } finally {
