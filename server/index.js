@@ -74,9 +74,26 @@ app.get('/api/force-init-db', async (req, res) => {
         console.error("Force Init Error:", err);
         res.status(500).json({ message: err.message, stack: err.stack });
     }
-});
+    // Promote User to Admin Route
+    app.get('/api/promote-admin', async (req, res) => {
+        try {
+            const { email } = req.query;
+            if (!email) return res.status(400).json({ message: "Please provide ?email=your@email.com" });
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+            const result = await query("UPDATE users SET role = 'admin' WHERE email = $1 RETURNING *", [email]);
+
+            if (result.rows.length === 0) {
+                return res.status(404).json({ message: "User not found" });
+            }
+
+            res.json({ message: `User ${email} is now an ADMIN!`, user: result.rows[0] });
+        } catch (err) {
+            console.error("Promote Error:", err);
+            res.status(500).json({ message: err.message });
+        }
+    });
+
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
 // Force restart: 123
