@@ -2,41 +2,30 @@ const { Pool } = require('pg');
 require('dotenv').config();
 
 /**
- * PRODUCTION DATABASE CONFIGURATION
- * Optimized for Supabase Pooler
+ * HARDCODED FALLBACK FOR HOSTINGER
+ * This is used because Hostinger's environment variables are failing.
  */
 
-if (!process.env.DATABASE_URL) {
-    console.warn('⚠️ WARNING: DATABASE_URL is not set in environment variables.');
-}
+const HARDCODED_URL = 'postgresql://postgres.nhjzerqlykdtuxdhlcek:akr301244!A%23@aws-0-ap-south-1.pooler.supabase.com:6543/postgres';
 
-const pool = new Pool(
-    process.env.DATABASE_URL
-        ? {
-            connectionString: process.env.DATABASE_URL,
-            ssl: {
-                rejectUnauthorized: false,
-            },
-        }
-        : {
-            user: process.env.DB_USER || 'postgres',
-            host: process.env.DB_HOST || 'localhost',
-            database: process.env.DB_NAME || 'event_platform',
-            password: process.env.DB_PASSWORD,
-            port: process.env.DB_PORT || 5432,
-        }
-);
+const DATABASE_URL = process.env.DATABASE_URL || HARDCODED_URL;
 
-// Debug connection events
+const pool = new Pool({
+    connectionString: DATABASE_URL,
+    ssl: {
+        rejectUnauthorized: false,
+    }
+});
+
 pool.on('connect', () => {
-    console.log('✅ Database Pool: Client connected');
+    console.log('✅ Connected to Supabase via Pooler');
 });
 
 pool.on('error', (err) => {
-    console.error('❌ Database Pool Error:', err.message);
+    console.error('❌ Pool Error:', err.message);
 });
 
 module.exports = {
     query: (text, params) => pool.query(text, params),
-    pool // Export pool for specialized tasks if needed
+    pool
 };
