@@ -1,6 +1,6 @@
 /**
  * FINAL CONSOLIDATED ENTRY (server.js)
- * VERSION: 2.3 (CACHE_BUSTER)
+ * VERSION: 2.4 (DIAGNOSTIC_ULTIMATE)
  */
 
 const dotenv = require('dotenv');
@@ -19,9 +19,11 @@ app.use(express.json());
 
 // 1. LOGGER
 app.use((req, res, next) => {
-    console.log(`[V2.3] ${req.method} ${req.url}`);
+    console.log(`[V2.4] ${req.method} ${req.url}`);
     next();
 });
+
+let routeError = null;
 
 // 2. SUPER HEALTH CHECK
 app.all('/api/health*', async (req, res) => {
@@ -37,16 +39,21 @@ app.all('/api/health*', async (req, res) => {
 
         res.json({
             status: 'ok',
-            version: '2.3-FIXED',
+            version: '2.4-FIXED',
             db: dbStatus,
+            mountError: routeError,
             structure: {
                 hasPublic: fs.existsSync(path.join(__dirname, 'public')),
                 hasRoutes: fs.existsSync(path.join(__dirname, 'routes')),
-                hasAuth: fs.existsSync(path.join(__dirname, 'routes/auth.js'))
+                hasAuth: fs.existsSync(path.join(__dirname, 'routes/auth.js')),
+                hasEvents: fs.existsSync(path.join(__dirname, 'routes/events.js')),
+                hasDb: fs.existsSync(path.join(__dirname, 'db/index.js')),
+                hasUploads: fs.existsSync(path.join(__dirname, 'uploads'))
             },
             env: {
                 hasDbUrl: !!process.env.DATABASE_URL,
-                nodeEnv: process.env.NODE_ENV
+                nodeEnv: process.env.NODE_ENV,
+                port: PORT
             }
         });
     } catch (err) {
@@ -58,15 +65,18 @@ app.all('/api/health*', async (req, res) => {
 try {
     app.use('/api/auth', require('./routes/auth'));
     app.use('/api/events', require('./routes/events'));
+    console.log('✅ API Routes connected');
 } catch (err) {
+    routeError = err.message;
     console.error('❌ Route loading failure:', err.message);
 }
 
 // 4. API 404 handler
 app.all('/api/*', (req, res) => {
     res.status(404).json({
-        error: "VERSION_2.3_API_NOT_FOUND",
-        path: req.url
+        error: "VERSION_2.4_API_NOT_FOUND",
+        path: req.url,
+        mountError: routeError
     });
 });
 
@@ -82,7 +92,7 @@ app.get('*', (req, res) => {
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Version 2.3 Live on port ${PORT}`);
+    console.log(`🚀 Version 2.4 Live on port ${PORT}`);
 });
 
 process.on('uncaughtException', (err) => { console.error('CRASH:', err); });
