@@ -219,7 +219,7 @@ router.put('/password', authorization, async (req, res) => {
 
 
 const nodemailer = require('nodemailer');
-const { v4: uuidv4 } = require('uuid');
+const crypto = require('crypto');
 
 // Configure Nodemailer (Using Ethereal for testing, replace with real credentials in .env for production)
 const transporter = nodemailer.createTransport({
@@ -241,7 +241,7 @@ router.post('/forgot-password', async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const token = uuidv4();
+        const token = crypto.randomUUID();
         // Token expires in 1 hour (3600000 ms)
         const expiresAt = Date.now() + 3600000;
 
