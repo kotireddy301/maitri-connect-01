@@ -1,6 +1,6 @@
 /**
  * FINAL CONSOLIDATED ENTRY (index.js)
- * VERSION: 2.7 (ENV_WORKAROUND)
+ * VERSION: 2.8 (CLEAN_SLATE)
  */
 
 const dotenv = require('dotenv');
@@ -39,7 +39,7 @@ app.all('/api/health*', async (req, res) => {
 
         res.json({
             status: 'ok',
-            version: '2.7-FIXED',
+            version: '2.8-FIXED',
             db: dbStatus,
             mountError: routeError,
             structure: {
@@ -51,7 +51,7 @@ app.all('/api/health*', async (req, res) => {
                 hasDbUrl: !!process.env.DATABASE_URL,
                 nodeEnv: process.env.NODE_ENV,
                 port: PORT,
-                availableKeys: Object.keys(process.env).filter(k => !k.includes('PASS') && !k.includes('SECRET') && !k.includes('URL'))
+                availableKeys: Object.keys(process.env)
             }
         });
     } catch (err) {
