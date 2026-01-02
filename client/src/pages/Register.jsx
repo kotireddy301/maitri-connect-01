@@ -22,8 +22,10 @@ const Register = () => {
         setLoading(true);
         try {
             const res = await api.post('/auth/register', formData);
-            localStorage.setItem('token', res.data.token);
-            localStorage.setItem('role', res.data.user.role); // Update role to prevent stale admin access
+            const { token, user } = res.data;
+            localStorage.setItem('user_token', token);
+            localStorage.setItem('user_role', user.role);
+            localStorage.setItem('user_user', JSON.stringify(user));
             toast({ title: "Account created!", description: "Welcome to MaitriConnect" });
             navigate('/dashboard');
         } catch (err) {

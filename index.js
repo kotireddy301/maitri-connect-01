@@ -24,51 +24,42 @@ console.log('PORT:', PORT);
 app.use(cors());
 app.use(express.json());
 
-// Serve static build files
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Serve uploads folder (Important for images)
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-// 4. Safe Database Loading
-let query;
-try {
-    const db = require('./db');
-    query = db.query;
-    console.log('✅ Database module loaded');
-} catch (err) {
-    console.error('⚠️ Database failed to load:', err.message);
-}
-
-// 5. Health Check
-app.get('/api/health', async (req, res) => {
-    try {
-        if (!query) throw new Error('DB Module not initialized');
-        const result = await query('SELECT NOW()');
-        res.json({
-            status: 'ok',
-            db: 'connected',
-            time: result.rows[0].now
-        });
-    } catch (err) {
-        res.status(500).json({
-            status: 'error',
-            message: 'Server is up but DB failed',
-            error: err.message
-        });
-    }
+// Request Logger (Helpful for 404 debugging)
+app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    next();
 });
 
-// 6. Routes (Try-Catch to prevent startup crash)
+// 4. API Routes (PRIORITY)
 try {
     app.use('/api/auth', require('./routes/auth'));
     app.use('/api/events', require('./routes/events'));
+
+    // API Health Check
+    app.get('/api/health', async (req, res) => {
+        try {
+            const result = await (require('./db').query)('SELECT NOW()');
+            res.json({ status: 'ok', db: 'connected', time: result.rows[0].now });
+        } catch (err) {
+            res.status(500).json({ status: 'error', error: err.message });
+        }
+    });
+
     console.log('✅ API Routes connected');
 } catch (err) {
     console.error('❌ Route loading error:', err.message);
 }
 
-// 7. React Router Fallback (MUST be last)
+// 5. Static Files
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// 6. Specific 404 for API
+app.all('/api/*', (req, res) => {
+    res.status(404).json({ error: `API route not found: ${req.method} ${req.url}` });
+});
+
+// 7. React Router Fallback
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'), (err) => {
         if (err) {
