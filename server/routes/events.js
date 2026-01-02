@@ -43,7 +43,14 @@ router.get('/user', authorization, async (req, res) => {
 // ADMIN: Get All Events (Pending, Approved, Rejected)
 router.get('/admin/all', adminAuthorization, async (req, res) => {
     try {
-        const allEvents = await db.query("SELECT events.*, users.first_name, users.last_name FROM events LEFT JOIN users ON events.organizer_id = users.id ORDER BY created_at DESC");
+        const allEvents = await db.query(`
+            SELECT events.*, 
+            COALESCE(events.organizer_first_name, users.first_name) as first_name, 
+            COALESCE(events.organizer_last_name, users.last_name) as last_name 
+            FROM events 
+            LEFT JOIN users ON events.organizer_id = users.id 
+            ORDER BY created_at DESC
+        `);
         res.json(allEvents.rows);
     } catch (err) {
         console.error(err.message);
@@ -57,7 +64,11 @@ router.get('/:id', async (req, res) => {
         const { id } = req.params;
         const event = await db.query(
             `SELECT events.*, 
-            users.first_name, users.last_name, users.email, users.mobile, users.profile_pic 
+            COALESCE(events.organizer_first_name, users.first_name) as first_name, 
+            COALESCE(events.organizer_last_name, users.last_name) as last_name, 
+            COALESCE(events.organizer_email, users.email) as email, 
+            COALESCE(events.organizer_phone, users.mobile) as mobile, 
+            users.profile_pic 
             FROM events 
             LEFT JOIN users ON events.organizer_id = users.id 
             WHERE events.id = $1`,
@@ -84,7 +95,10 @@ router.post('/', authorization, upload.single('flyer'), async (req, res) => {
         console.log("received event submission:", req.body);
         console.log("received file:", req.file);
 
-        const { title, description, date, time, location, category, external_reg_url } = req.body;
+        const {
+            title, description, date, time, location, category, external_reg_url,
+            first_name, last_name, user_email, phone
+        } = req.body;
         const image_url = req.file ? `/uploads/${req.file.filename}` : null;
 
         // Check user role for auto-approval
@@ -93,8 +107,16 @@ router.post('/', authorization, upload.single('flyer'), async (req, res) => {
         const status = isAdmin ? 'approved' : 'pending';
 
         const newEvent = await db.query(
-            'INSERT INTO events (title, description, date, time, location, category, image_url, external_reg_url, organizer_id, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *',
-            [title, description, date, time, location, category, image_url, external_reg_url, req.user.user_id, status]
+            `INSERT INTO events (
+                title, description, date, time, location, category, image_url, 
+                external_reg_url, organizer_id, status,
+                organizer_first_name, organizer_last_name, organizer_email, organizer_phone
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING *`,
+            [
+                title, description, date, time, location, category, image_url,
+                external_reg_url, req.user.user_id, status,
+                first_name, last_name, user_email, phone
+            ]
         );
 
         res.json(newEvent.rows[0]);
@@ -109,8 +131,10 @@ router.post('/', authorization, upload.single('flyer'), async (req, res) => {
 router.put('/:id', authorization, async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, description, date, time, location, category, external_reg_url } = req.body;
-
+        const {
+            title, description, date, time, location, category, external_reg_url,
+            first_name, last_name, user_email, phone
+        } = req.body;
         // Ensure user owns this event
         const checkOwner = await db.query("SELECT * FROM events WHERE id = $1 AND organizer_id = $2", [id, req.user.user_id]);
         if (checkOwner.rows.length === 0) {
@@ -118,8 +142,16 @@ router.put('/:id', authorization, async (req, res) => {
         }
 
         const updateEvent = await db.query(
-            'UPDATE events SET title = $1, description = $2, date = $3, time = $4, location = $5, category = $6, external_reg_url = $7, status = $8 WHERE id = $9 RETURNING *',
-            [title, description, date, time, location, category, external_reg_url, 'pending', id]
+            `UPDATE events SET 
+                title = $1, description = $2, date = $3, time = $4, location = $5, 
+                category = $6, external_reg_url = $7, status = $8,
+                organizer_first_name = $9, organizer_last_name = $10, 
+                organizer_email = $11, organizer_phone = $12 
+            WHERE id = $13 RETURNING *`,
+            [
+                title, description, date, time, location, category, external_reg_url, 'pending',
+                first_name, last_name, user_email, phone, id
+            ]
         );
 
         res.json(updateEvent.rows[0]);

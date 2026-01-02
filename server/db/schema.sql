@@ -31,5 +31,9 @@ CREATE TABLE IF NOT EXISTS events (
   external_reg_url VARCHAR(255),
   status VARCHAR(50) DEFAULT 'pending', -- 'pending', 'approved', 'rejected'
   organizer_id INTEGER REFERENCES users(id),
+  organizer_first_name VARCHAR(100),
+  organizer_last_name VARCHAR(100),
+  organizer_email VARCHAR(255),
+  organizer_phone VARCHAR(20),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

@@ -11,8 +11,8 @@
         "client-build": "cd client && npm install && npm run build",
         "move-build": "rm -rf public && mkdir -p public && cp -r client/dist/. public/",
         "build": "npm run client-build && npm run move-build",
-        "start": "node server.js",
-        "dev-server": "nodemon server.js",
+        "start": "node server/server.js",
+        "dev-server": "nodemon server/server.js",
         "dev-client": "cd client && npm run dev",
         "dev": "concurrently \"npm run dev-server\" \"npm run dev-client\""
     },
