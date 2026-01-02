@@ -1,8 +1,11 @@
 # Master .gitignore
 node_modules/
 .env
-dist/
-public/ (Compiled files)
-server/public/
+client/node_modules/
+client/dist/
+
+# Ignore the compiled frontend folder
+public/
+
 .DS_Store
 *.log
