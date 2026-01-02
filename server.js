@@ -1,6 +1,6 @@
 /**
  * FINAL CONSOLIDATED ENTRY (server.js)
- * VERSION: 2.6 (FINAL_FIX)
+ * VERSION: 2.7 (ENV_WORKAROUND)
  */
 
 const dotenv = require('dotenv');
@@ -39,7 +39,7 @@ app.all('/api/health*', async (req, res) => {
 
         res.json({
             status: 'ok',
-            version: '2.6-FIXED',
+            version: '2.7-FIXED',
             db: dbStatus,
             mountError: routeError,
             structure: {
