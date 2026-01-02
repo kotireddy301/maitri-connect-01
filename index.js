@@ -1,6 +1,6 @@
 /**
- * DEBUGGING INDEX.JS
- * Solving the 404 matching issue
+ * FINAL CONSOLIDATED ENTRY (index.js)
+ * VERSION: 2.3 (CACHE_BUSTER)
  */
 
 const dotenv = require('dotenv');
@@ -17,14 +17,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 1. IMPROVED LOGGER (Logs everything)
+// 1. LOGGER
 app.use((req, res, next) => {
-    console.log(`[DEBUG] ${req.method} ${req.url} (Path: ${req.path})`);
+    console.log(`[V2.3] ${req.method} ${req.url}`);
     next();
 });
 
-// 2. SUPER ROBUST HEALTH CHECK
-// Using .all and a broad path to ensure it triggers
+// 2. SUPER HEALTH CHECK
 app.all('/api/health*', async (req, res) => {
     try {
         const db = require('./db');
@@ -33,13 +32,12 @@ app.all('/api/health*', async (req, res) => {
             await db.query('SELECT NOW()');
             dbStatus = 'Connected';
         } catch (e) {
-            dbStatus = `Connection Error: ${e.message}`;
+            dbStatus = `DB_Error: ${e.message}`;
         }
 
         res.json({
             status: 'ok',
-            message: 'Health Check Hit',
-            time: new Date().toISOString(),
+            version: '2.3-FIXED',
             db: dbStatus,
             structure: {
                 hasPublic: fs.existsSync(path.join(__dirname, 'public')),
@@ -60,28 +58,32 @@ app.all('/api/health*', async (req, res) => {
 try {
     app.use('/api/auth', require('./routes/auth'));
     app.use('/api/events', require('./routes/events'));
-    console.log('✅ Routes Registered');
 } catch (err) {
-    console.error('❌ Route Init Fail:', err.message);
+    console.error('❌ Route loading failure:', err.message);
 }
 
-// 4. API 404 Handler (This is catching too much?)
-app.use('/api/*', (req, res) => {
+// 4. API 404 handler
+app.all('/api/*', (req, res) => {
     res.status(404).json({
-        error: "API 404",
-        requested: `${req.method} ${req.url}`,
-        tip: "Check if the route exists in routes/ folder"
+        error: "VERSION_2.3_API_NOT_FOUND",
+        path: req.url
     });
 });
 
-// 5. Frontend Fallback
+// 5. STATIC FILES
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// 6. REACT FALLBACK
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index.html'), (err) => {
+        if (err) res.status(404).send("Frontend missing - check public/ folder");
+    });
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Debug Server on port ${PORT}`);
+    console.log(`🚀 Version 2.3 Live on port ${PORT}`);
 });
+
+process.on('uncaughtException', (err) => { console.error('CRASH:', err); });
+process.on('unhandledRejection', (err) => { console.error('REJECTION:', err); });

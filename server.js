@@ -1,7 +1,6 @@
 /**
- * FRESH ENTRY POINT (server.js)
- * Bypassing cached index.js
- * Version: 2.1 (FINAL_DIAGNOSTIC)
+ * FINAL CONSOLIDATED ENTRY (server.js)
+ * VERSION: 2.3 (CACHE_BUSTER)
  */
 
 const dotenv = require('dotenv');
@@ -18,13 +17,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 1. LOGGER (Check paths)
+// 1. LOGGER
 app.use((req, res, next) => {
-    console.log(`[REQ] ${req.method} ${req.url}`);
+    console.log(`[V2.3] ${req.method} ${req.url}`);
     next();
 });
 
-// 2. FORCED HEALTH CHECK (Wildcard)
+// 2. SUPER HEALTH CHECK
 app.all('/api/health*', async (req, res) => {
     try {
         const db = require('./db');
@@ -33,14 +32,12 @@ app.all('/api/health*', async (req, res) => {
             await db.query('SELECT NOW()');
             dbStatus = 'Connected';
         } catch (e) {
-            dbStatus = `Connection Error: ${e.message}`;
+            dbStatus = `DB_Error: ${e.message}`;
         }
 
         res.json({
             status: 'ok',
-            version: '2.1-FIXED',
-            message: 'SUPER_HEALTH_CHECK_ACTIVE',
-            time: new Date().toISOString(),
+            version: '2.3-FIXED',
             db: dbStatus,
             structure: {
                 hasPublic: fs.existsSync(path.join(__dirname, 'public')),
@@ -57,21 +54,19 @@ app.all('/api/health*', async (req, res) => {
     }
 });
 
-// 3. LOAD API ROUTES
+// 3. API ROUTES
 try {
     app.use('/api/auth', require('./routes/auth'));
     app.use('/api/events', require('./routes/events'));
-    console.log('✅ API Routes connected to server.js');
 } catch (err) {
     console.error('❌ Route loading failure:', err.message);
 }
 
-// 4. API 404 handler (Customized for version identification)
+// 4. API 404 handler
 app.all('/api/*', (req, res) => {
     res.status(404).json({
-        error: "VERSION_2.1_API_NOT_FOUND",
-        path: req.url,
-        method: req.method
+        error: "VERSION_2.3_API_NOT_FOUND",
+        path: req.url
     });
 });
 
@@ -87,7 +82,7 @@ app.get('*', (req, res) => {
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Version 2.1 Live on port ${PORT}`);
+    console.log(`🚀 Version 2.3 Live on port ${PORT}`);
 });
 
 process.on('uncaughtException', (err) => { console.error('CRASH:', err); });
