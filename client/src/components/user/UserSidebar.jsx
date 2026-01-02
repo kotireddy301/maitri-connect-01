@@ -14,8 +14,9 @@ const UserSidebar = ({ isOpen, onClose }) => {
 
     const handleLogout = () => {
         if (window.confirm('Are you sure you want to logout?')) {
-            localStorage.removeItem('token');
-            localStorage.removeItem('role');
+            localStorage.removeItem('user_token');
+            localStorage.removeItem('user_role');
+            localStorage.removeItem('user_user');
             navigate('/login');
         }
     };

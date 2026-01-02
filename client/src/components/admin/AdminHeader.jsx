@@ -54,7 +54,9 @@ const AdminHeader = ({ onMenuClick }) => {
     }, []);
 
     const handleLogout = () => {
-        localStorage.removeItem('token');
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_role');
+        localStorage.removeItem('admin_user');
         navigate('/login');
     };
 

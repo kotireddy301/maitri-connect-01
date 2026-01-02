@@ -1,17 +1,25 @@
 const { Client } = require('pg');
 const fs = require('fs');
 const path = require('path');
-require('dotenv').config();
+require('dotenv').config({ override: true });
 
 async function init() {
     console.log("🚀 Starting Automatic Database Initialization...");
 
-    const isProduction = !!process.env.DATABASE_URL;
+    const connectionString = process.env.DATABASE_URL;
+    const isProduction = !!connectionString;
+
+    if (isProduction) {
+        // Clean the connection string to ensure no hidden characters and standard protocol
+        const cleanUrl = connectionString.trim().replace('postgresql://', 'postgres://');
+        const urlObj = new URL(cleanUrl);
+        console.log(`🔗 Connecting to host: ${urlObj.hostname} on port: ${urlObj.port || 5432}`);
+    }
 
     // Configuration for connection
     const connectionConfig = isProduction
         ? {
-            connectionString: process.env.DATABASE_URL,
+            connectionString: connectionString.trim().replace('postgresql://', 'postgres://'),
             ssl: { rejectUnauthorized: false },
         }
         : {

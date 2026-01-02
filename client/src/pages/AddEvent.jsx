@@ -82,7 +82,11 @@ const AddEvent = () => {
             await api.post('/events', submitData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
-            const role = localStorage.getItem('role');
+
+            // Re-determine the role based on the session tokens
+            const isAdminPath = window.location.pathname.startsWith('/admin');
+            const role = isAdminPath ? localStorage.getItem('admin_role') : localStorage.getItem('user_role');
+
             if (role === 'admin') {
                 toast({
                     title: "Event Created!",

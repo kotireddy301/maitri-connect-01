@@ -23,13 +23,19 @@ const Login = () => {
         setLoading(true);
         try {
             const res = await api.post('/auth/login', formData);
-            localStorage.setItem('token', res.data.token);
-            localStorage.setItem('role', res.data.user.role);
-            toast({ title: "Welcome back!", description: "Login successful" });
+            const { token, user } = res.data;
 
-            if (res.data.user.role === 'admin') {
+            if (user.role === 'admin') {
+                localStorage.setItem('admin_token', token);
+                localStorage.setItem('admin_role', user.role);
+                localStorage.setItem('admin_user', JSON.stringify(user));
+                toast({ title: "Welcome back, Admin!", description: "Admin login successful" });
                 navigate('/admin');
             } else {
+                localStorage.setItem('user_token', token);
+                localStorage.setItem('user_role', user.role);
+                localStorage.setItem('user_user', JSON.stringify(user));
+                toast({ title: "Welcome back!", description: "User login successful" });
                 navigate('/dashboard');
             }
         } catch (err) {

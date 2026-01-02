@@ -109,10 +109,32 @@ const Navigation = () => {
                       </Link>
                     ))}
                     <div className="h-px bg-gray-100 my-2" />
-                    <button className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 hover:text-red-500 transition-colors">
+                    <button
+                      onClick={() => {
+                        localStorage.removeItem('user_token');
+                        localStorage.removeItem('user_role');
+                        localStorage.removeItem('user_user');
+                        window.location.href = '/login';
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 hover:text-red-500 transition-colors"
+                    >
                       <LogOut className="w-4 h-4" />
-                      Sign Out
+                      Sign Out User
                     </button>
+                    {localStorage.getItem('admin_token') && (
+                      <button
+                        onClick={() => {
+                          localStorage.removeItem('admin_token');
+                          localStorage.removeItem('admin_role');
+                          localStorage.removeItem('admin_user');
+                          window.location.href = '/login';
+                        }}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 hover:text-red-500 transition-colors border-t border-gray-100"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Sign Out Admin
+                      </button>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>
