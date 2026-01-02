@@ -1,6 +1,6 @@
 /**
  * FINAL CONSOLIDATED ENTRY (index.js)
- * VERSION: 2.8 (CLEAN_SLATE)
+ * VERSION: 2.9 (PROD_STABLE)
  */
 
 const dotenv = require('dotenv');
@@ -19,7 +19,7 @@ app.use(express.json());
 
 // 1. LOGGER
 app.use((req, res, next) => {
-    console.log(`[V2.5] ${req.method} ${req.url}`);
+    console.log(`[V2.9] ${req.method} ${req.url}`);
     next();
 });
 
@@ -39,13 +39,16 @@ app.all('/api/health*', async (req, res) => {
 
         res.json({
             status: 'ok',
-            version: '2.8-FIXED',
+            version: '2.9-STABLE',
             db: dbStatus,
             mountError: routeError,
             structure: {
                 hasPublic: fs.existsSync(path.join(__dirname, 'public')),
                 hasRoutes: fs.existsSync(path.join(__dirname, 'routes')),
                 hasAuth: fs.existsSync(path.join(__dirname, 'routes/auth.js')),
+                hasEvents: fs.existsSync(path.join(__dirname, 'routes/events.js')),
+                hasDb: fs.existsSync(path.join(__dirname, 'db/index.js')),
+                hasUploads: fs.existsSync(path.join(__dirname, 'uploads'))
             },
             env: {
                 hasDbUrl: !!process.env.DATABASE_URL,
@@ -65,17 +68,32 @@ try {
     app.use('/api/events', require('./routes/events'));
 } catch (err) {
     routeError = err.message;
+    console.error('❌ Route mounting error:', err.message);
 }
 
+// 4. API 404 handler
 app.all('/api/*', (req, res) => {
-    res.status(404).json({ error: "VERSION_2.5_API_NOT_FOUND", mountError: routeError });
+    res.status(404).json({
+        error: "VERSION_2.9_API_NOT_FOUND",
+        path: req.url,
+        mountError: routeError
+    });
 });
 
+// 5. STATIC FILES
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// 6. REACT FALLBACK
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index.html'), (err) => {
+        if (err) res.status(404).send("Frontend missing - check public/ folder");
+    });
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Version 2.5 Live on port ${PORT}`);
+    console.log(`🚀 Version 2.9 Live on port ${PORT}`);
 });
+
+process.on('uncaughtException', (err) => { console.error('CRASH:', err); });
+process.on('unhandledRejection', (err) => { console.error('REJECTION:', err); });

@@ -1,6 +1,15 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
+/**
+ * PRODUCTION DATABASE CONFIGURATION
+ * Optimized for Supabase Pooler
+ */
+
+if (!process.env.DATABASE_URL) {
+    console.warn('⚠️ WARNING: DATABASE_URL is not set in environment variables.');
+}
+
 const pool = new Pool(
     process.env.DATABASE_URL
         ? {
@@ -18,6 +27,16 @@ const pool = new Pool(
         }
 );
 
+// Debug connection events
+pool.on('connect', () => {
+    console.log('✅ Database Pool: Client connected');
+});
+
+pool.on('error', (err) => {
+    console.error('❌ Database Pool Error:', err.message);
+});
+
 module.exports = {
     query: (text, params) => pool.query(text, params),
+    pool // Export pool for specialized tasks if needed
 };
