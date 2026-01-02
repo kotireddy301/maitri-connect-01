@@ -6,7 +6,7 @@
     "scripts": {
         "install-all": "npm install && cd client && npm install && cd ../server && npm install",
         "client-build": "cd client && npm run build",
-        "move-build": "rmdir /s /q server\\public & mkdir server\\public & xcopy /e /i client\\dist\\* server\\public\\",
+        "move-build": "rm -rf server/public && mkdir -p server/public && cp -r client/dist/. server/public/",
         "build": "npm run client-build && npm run move-build",
         "start": "cd server && node index.js",
         "dev-server": "cd server && npm run dev",
