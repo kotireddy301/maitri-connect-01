@@ -1,6 +1,6 @@
 /**
- * FINAL STABLE INDEX.JS
- * Optimized for Hostinger Node.js Web App
+ * DEBUGGING INDEX.JS
+ * Solving the 404 matching issue
  */
 
 const dotenv = require('dotenv');
@@ -14,21 +14,18 @@ const fs = require('fs');
 const PORT = process.env.PORT || 5000;
 const app = express();
 
-console.log('--- SERVER STARTING ---');
-console.log('NODE_ENV:', process.env.NODE_ENV);
-console.log('PORT:', PORT);
-
 app.use(cors());
 app.use(express.json());
 
-// Request Logger
+// 1. IMPROVED LOGGER (Logs everything)
 app.use((req, res, next) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    console.log(`[DEBUG] ${req.method} ${req.url} (Path: ${req.path})`);
     next();
 });
 
-// 1. Super Health Check (Priority - Always works)
-app.get('/api/health', async (req, res) => {
+// 2. SUPER ROBUST HEALTH CHECK
+// Using .all and a broad path to ensure it triggers
+app.all('/api/health*', async (req, res) => {
     try {
         const db = require('./db');
         let dbStatus = 'Checking...';
@@ -41,60 +38,50 @@ app.get('/api/health', async (req, res) => {
 
         res.json({
             status: 'ok',
+            message: 'Health Check Hit',
             time: new Date().toISOString(),
             db: dbStatus,
             structure: {
                 hasPublic: fs.existsSync(path.join(__dirname, 'public')),
                 hasRoutes: fs.existsSync(path.join(__dirname, 'routes')),
-                hasAuthRoute: fs.existsSync(path.join(__dirname, 'routes/auth.js')),
-                hasDb: fs.existsSync(path.join(__dirname, 'db/index.js')),
+                hasAuth: fs.existsSync(path.join(__dirname, 'routes/auth.js'))
             },
             env: {
                 hasDbUrl: !!process.env.DATABASE_URL,
-                hasJwtSecret: !!process.env.JWT_SECRET,
                 nodeEnv: process.env.NODE_ENV
             }
         });
     } catch (err) {
-        res.status(500).json({ status: 'error', message: err.message });
+        res.status(500).json({ error: err.message });
     }
 });
 
-// 2. API Routes
+// 3. API ROUTES
 try {
     app.use('/api/auth', require('./routes/auth'));
     app.use('/api/events', require('./routes/events'));
-    console.log('✅ API Routes connected');
+    console.log('✅ Routes Registered');
 } catch (err) {
-    console.error('❌ Route loading error:', err.message);
+    console.error('❌ Route Init Fail:', err.message);
 }
 
-// 3. Static Files
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-// 4. API 404 handler
-app.all('/api/*', (req, res) => {
-    res.status(404).json({ error: `API route not found: ${req.method} ${req.url}` });
-});
-
-// 5. React routing fallback
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'), (err) => {
-        if (err) {
-            res.status(404).send('Frontend build missing. Run "npm run build"');
-        }
+// 4. API 404 Handler (This is catching too much?)
+app.use('/api/*', (req, res) => {
+    res.status(404).json({
+        error: "API 404",
+        requested: `${req.method} ${req.url}`,
+        tip: "Check if the route exists in routes/ folder"
     });
 });
 
+// 5. Frontend Fallback
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Server listening on 0.0.0.0:${PORT}`);
-});
-
-process.on('uncaughtException', (err) => {
-    console.error('UNCAUGHT EXCEPTION:', err);
-});
-
-process.on('unhandledRejection', (err) => {
-    console.error('UNHANDLED REJECTION:', err);
+    console.log(`🚀 Debug Server on port ${PORT}`);
 });
