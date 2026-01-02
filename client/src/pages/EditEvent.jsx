@@ -146,19 +146,29 @@ const EditEvent = () => {
                     </div>
 
                     <form onSubmit={handleSubmit} className="p-8 space-y-8">
-                        {/* Note: Organizer details are read-only or just for context here, typically we don't edit user profile via event edit */}
-                        <div className="space-y-6 opacity-60">
+                        <div className="space-y-6">
                             <h3 className="text-lg font-semibold text-gray-900 border-b pb-2 flex items-center gap-2">
-                                <User className="w-5 h-5 text-[#D3043C]" /> Organizer Details (Read Only)
+                                <User className="w-5 h-5 text-[#D3043C]" /> Organizer Details
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
                                     <Label>First Name</Label>
-                                    <Input value={form.first_name} disabled className="bg-gray-100" />
+                                    <Input name="first_name" required value={form.first_name} onChange={handleChange} placeholder="John" />
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Last Name</Label>
-                                    <Input value={form.last_name} disabled className="bg-gray-100" />
+                                    <Input name="last_name" required value={form.last_name} onChange={handleChange} placeholder="Doe" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Email</Label>
+                                    <Input name="user_email" type="email" required value={form.user_email} onChange={handleChange} placeholder="john@example.com" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Phone Number</Label>
+                                    <div className="relative">
+                                        <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                                        <Input name="phone" className="pl-10" required value={form.phone} onChange={handleChange} placeholder="(555) 123-4567" />
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -217,6 +227,16 @@ const EditEvent = () => {
                                         <option value="Business">Business</option>
                                         <option value="Other">Other</option>
                                     </select>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label>External Registration URL (Optional)</Label>
+                                    <Input
+                                        name="external_reg_url"
+                                        value={form.external_reg_url}
+                                        onChange={handleChange}
+                                        placeholder="https://example.com/register"
+                                    />
                                 </div>
 
                                 <div className="space-y-2">

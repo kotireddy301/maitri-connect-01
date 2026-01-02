@@ -181,8 +181,12 @@ const EventDetails = () => {
                                     </div>
                                 </div>
 
-                                <Button className="w-full mb-3 bg-[#D3043C] hover:bg-[#a0032e] text-white">Call Now</Button>
-                                <Button variant="outline" className="w-full border-gray-200 text-gray-700 hover:bg-gray-50">Send Message</Button>
+                                <a href={`tel:${event.mobile}`} className="block w-full mb-3">
+                                    <Button className="w-full bg-[#D3043C] hover:bg-[#a0032e] text-white">Call Now</Button>
+                                </a>
+                                <a href={`mailto:${event.email}`} className="block w-full">
+                                    <Button variant="outline" className="w-full border-gray-200 text-gray-700 hover:bg-gray-50">Send Message</Button>
+                                </a>
                             </div>
 
                             {/* Details Info */}

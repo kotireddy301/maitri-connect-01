@@ -36,6 +36,7 @@ const AddEvent = () => {
         location: "",
         description: "",
         category: "Community",
+        external_reg_url: "",
     });
 
     const handleChange = (e) => {
@@ -215,6 +216,16 @@ const AddEvent = () => {
                                         <option value="Business">Business</option>
                                         <option value="Other">Other</option>
                                     </select>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label>External Registration URL (Optional)</Label>
+                                    <Input
+                                        name="external_reg_url"
+                                        value={form.external_reg_url}
+                                        onChange={handleChange}
+                                        placeholder="https://example.com/register"
+                                    />
                                 </div>
 
                                 <div className="space-y-2">
